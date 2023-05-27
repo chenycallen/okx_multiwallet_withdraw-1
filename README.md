@@ -43,11 +43,14 @@ Go to okx.com and get the api key, set multi-wallet addresses to whitelist.
 
 ## contact info
 
-[tlelgram](https://t.me/liiiztw)
+[telegram](https://t.me/liiiztw)
 [twitter](https://twitter.com/game_liiiz)
 
 ## Version History
 
+* 1.0.1
+    * add log version
+    * fix log amount
 * 1.0
     * Initial Release
 

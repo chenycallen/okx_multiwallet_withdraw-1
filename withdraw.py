@@ -1,5 +1,6 @@
 # 載入設定
 import json
+import os
 config_filepath = 'config.json'
 address_filepath = 'wallets.txt'
 with open(config_filepath) as f:
@@ -12,6 +13,15 @@ if config_dict['random_amount']:
     max_amount_range = 5
 else:
     max_amount_range = 0
+
+
+# 檢查log若存在就往下推一個版本
+filename = 'log.csv'
+counter = 0
+while os.path.isfile(filename):
+    counter += 1
+    filename = f"log{str(counter).zfill(2)}.csv"
+
 
 try:
     import pandas as pd
@@ -36,18 +46,19 @@ try:
         for address in address_list:
         
             ratio = (1+random.randint(0,max_amount_range)/1000)
-            res = fundingAPI.coin_withdraw(ccy=config_dict['token'],chain=config_dict['network'] , amt=config_dict['amount']*ratio, dest="4", toAddr=address, pwd="pwd", fee=minfee)
+            amount = config_dict['amount']*ratio
+            res = fundingAPI.coin_withdraw(ccy=config_dict['token'],chain=config_dict['network'] , amt=amount, dest="4", toAddr=address, pwd="pwd", fee=minfee)
             
             if res['msg']:
                 print(f"!!{res['msg']}!!")
             else:
                 try:
-                    pd.read_csv('log.csv')
+                    pd.read_csv(filename)
                 except:
-                    with open('log.csv', 'w') as f: f.write("time,targetAddress,network,amount,token,fee\n")
+                    with open(filename, 'w') as f: f.write("time,targetAddress,network,amount,token,fee\n")
                     pass
-                with open('log.csv', 'a') as f: f.write(f"{pd.Timestamp('now').ceil(freq='s')},{address},{config_dict['network']},{config_dict['amount']},{config_dict['token']},{minfee}\n")
-                print(f"[{pd.Timestamp('now').ceil(freq='s')}] {address} {config_dict['network']}:{config_dict['amount']}{config_dict['token']} fee:{minfee}")
+                with open(filename, 'a') as f: f.write(f"{pd.Timestamp('now').ceil(freq='s')},{address},{config_dict['network']},{amount},{config_dict['token']},{minfee}\n")
+                print(f"[{pd.Timestamp('now').ceil(freq='s')}] {address} {config_dict['network']}:{amount}{config_dict['token']} fee:{minfee}")
                 
                 delay = random.randint(config_dict['delay']['min'],config_dict['delay']['max'])
                 for t in range(delay):
